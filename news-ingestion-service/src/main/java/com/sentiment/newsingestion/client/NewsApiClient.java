@@ -1,6 +1,7 @@
 package com.sentiment.newsingestion.client;
 
 import com.sentiment.newsingestion.model.NewsStream;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.EmitterProcessor;
@@ -17,6 +18,9 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class NewsApiClient {
 
+    @Value("${API_KEY}")
+    private String apiKey;
+
     private final WebClient webClient;
 
     public NewsApiClient(WebClient webClient) {
@@ -30,7 +34,7 @@ public class NewsApiClient {
                         .queryParam("q", keyword)
                         .queryParam("pageSize", 100)
                         .queryParam("page", 1)
-                        .queryParam("apiKey", "5b38541e2ee7427bb8840ea681ea5ccd")
+                        .queryParam("apiKey", apiKey)
                         .build())
                 .retrieve()
                 .bodyToMono(NewsStream.NewsApiResponse.class)
