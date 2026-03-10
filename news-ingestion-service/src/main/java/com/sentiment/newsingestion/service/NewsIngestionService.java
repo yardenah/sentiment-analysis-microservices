@@ -20,11 +20,10 @@ import java.util.UUID;
 public class NewsIngestionService {
 
     private static final String TOPIC = "news.sentences";
-
+    //private final AppKafkaProps kafkaProps;
     private final NewsApiClient newsApiClient;
-
-    @Autowired
-    AppKafkaSender kafkaSender;
+    private final AppKafkaSender kafkaSender;
+    private volatile boolean stopped = false;
 
     public NewsIngestionService(NewsApiClient newsApiClient,
                                 AppKafkaSender kafkaSender) {
@@ -33,8 +32,17 @@ public class NewsIngestionService {
     }
 
     public Mono<Void> ingestNews(String keyword) {
-        return newsApiClient.fetchNews(keyword).map((x) -> kafkaSender.send(x, TOPIC)).then();
+        stopped = false;
+
+        return newsApiClient.fetchNews(keyword)
+                .takeWhile(article -> !stopped)
+                .doOnNext(article -> kafkaSender.send(article, TOPIC))
+                .then();
     }
+
+        public void stopIngestion() {
+            this.stopped = true;
+        }
 }
 
 

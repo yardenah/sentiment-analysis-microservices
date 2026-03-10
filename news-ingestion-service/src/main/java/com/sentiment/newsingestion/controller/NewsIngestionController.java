@@ -21,5 +21,11 @@ public class NewsIngestionController {
     public Mono<Void> ingest(@RequestParam String keyword) {
         return service.ingestNews(keyword);
     }
+
+    @GetMapping("/api/news/stop-ingest")
+    public String stopIngest() {
+        service.stopIngestion();
+        return "News ingestion stopped";
+    }
 }
 
