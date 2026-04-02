@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-ingestion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: news-ingestion
+  template:
+    metadata:
+      labels:
+        app: news-ingestion
+    spec:
+      containers:
+        - name: news-ingestion
+          image: news-ingestion:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"
+            - name: API_KEY
+              valueFrom:
+                  secretKeyRef:
+                  name: news-api-secret
+                  key: API_KEY
